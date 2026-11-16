@@ -1,0 +1,27 @@
+# Local account settings, credentials and private repository metadata
+/config.json
+/.webhook-secret
+/webhook_registry.json
+/webhook_status.json
+/state.json
+/api_cooldown.json
+/deliveries.sqlite3*
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+__pycache__/
+*.py[cod]
+.venv/
+/bin/
+/work/
+
+# User-supplied music stays local. Only generated sample tones are shared.
+/sounds/*
+!/sounds/README.md
+!/sounds/defaults/
+/sounds/defaults/*
+!/sounds/defaults/push.wav
+!/sounds/defaults/star.wav
+!/sounds/defaults/fork.wav

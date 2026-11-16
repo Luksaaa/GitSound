@@ -1,0 +1,14 @@
+{
+  "owners": [],
+  "mode": "webhook",
+  "webhook_port": 8765,
+  "repositories": [],
+  "poll_seconds": 60,
+  "duration_seconds": 15,
+  "sounds_directory": "sounds",
+  "sounds": {
+    "push": "auto",
+    "star": "auto",
+    "fork": "auto"
+  }
+}
