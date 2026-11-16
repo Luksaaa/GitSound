@@ -14,7 +14,7 @@ your GitHub repositories. Public and private repositories are supported.
    `GITHUB_TOKEN` environment variable. Never put a token in a project file.
 4. Run `Install.bat`. It creates your local configuration, checks your GitHub login,
    and downloads Cloudflare's `cloudflared` executable with SHA256 verification.
-5. Run `Pozadina.bat` for background mode, or `Pokreni.bat` for a console window.
+5. Run `start_background.bat` for background mode, or `start.bat` for a console window.
 
 The account is detected from your GitHub login. Git Sound automatically creates
 webhooks for **repositories owned by that account** where you have admin access,
@@ -61,12 +61,12 @@ for this project and are covered by the MIT license.
 | File / command | Purpose |
 | --- | --- |
 | `Install.bat` | First-run setup; existing local config is preserved |
-| `Pozadina.bat` | Start in the background |
-| `Pokreni.bat` | Start with visible logs |
-| `Test-push.bat` | Play the selected push sound |
-| `Test-zvuka.bat` | Play the selected star sound |
+| `start_background.bat` | Start in the background |
+| `start.bat` | Start with visible logs |
+| `test_push.bat` | Play the selected push sound |
+| `test_star.bat` | Play the selected star sound |
 | `python git_sound.py --test fork` | Play the selected fork sound |
-| `Zaustavi.bat` | Stop the local app and its tunnel |
+| `stop.bat` | Stop the local app and its tunnel |
 
 `git_sound.log` records events, selected sound names, and errors.
 `webhook_status.json` lists setup successes and failures. These local files may
@@ -125,7 +125,7 @@ python -m unittest discover -s tests -v
 
 Tests run offline without changing GitHub settings or playing audio.
 
-See [UPUTE.md](UPUTE.md) for Croatian instructions and [LICENSE](LICENSE) for reuse.
+See [INSTRUCTIONS.hr.md](INSTRUCTIONS.hr.md) for Croatian instructions and [LICENSE](LICENSE) for reuse.
 
 References: [GitHub webhooks](https://docs.github.com/en/rest/repos/webhooks),
 [Cloudflare Quick Tunnels](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/).

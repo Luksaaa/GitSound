@@ -290,4 +290,4 @@ def run(config):
 
 
 if __name__ == '__main__':
-    raise SystemExit('Pokreni git_sound.py ili Pozadina.bat.')
+    raise SystemExit('Pokreni git_sound.py ili start_background.bat.')

@@ -11,7 +11,7 @@ racunu i na kojima imas admin ovlasti. Prijavljeni racun prepoznaje automatski.
    kao varijablu okruzenja. Token nemoj upisivati u datoteke projekta.
 3. Pokreni Install.bat. Izradit ce lokalni config.json, provjeriti prijavu i
    preuzeti cloudflared sa SHA256 provjerom ako jos nije instaliran.
-4. Pokreni Pozadina.bat za rad u pozadini ili Pokreni.bat za prozor sa zapisom.
+4. Pokreni start_background.bat za rad u pozadini ili start.bat za prozor sa zapisom.
 
 Za fine-grained token odaberi svoj racun, All repositories, Webhooks: Read and
 write te Metadata: Read. Organizacijski i tudji repozitoriji nisu automatski
@@ -37,8 +37,8 @@ Obicni push.wav bez podvlake ne smatra se prilagodjenom pjesmom.
 Reprodukcija traje najvise 15 sekundi. Kraci zvuk zavrsava ranije.
 Preimenovanje MP3 datoteke u WAV ne pretvara stvarni audio format.
 
-Test-push.bat testira push, Test-zvuka.bat testira star, a naredba
-python git_sound.py --test fork testira fork. Zaustavi.bat gasi aplikaciju i tunel.
+test_push.bat testira push, test_star.bat testira star, a naredba
+python git_sound.py --test fork testira fork. stop.bat gasi aplikaciju i tunel.
 Za promjenu racuna ili porta potrebno je ponovno pokretanje.
 
 ## Rad i ogranicenja

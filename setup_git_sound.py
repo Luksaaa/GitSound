@@ -87,7 +87,7 @@ def main():
     account = api.call('/user')['login']
     install_cloudflared(token)
     print('GitHub account: ' + account)
-    print('Ready. Run Pozadina.bat (background) or Pokreni.bat (console).')
+    print('Ready. Run start_background.bat (background) or start.bat (console).')
     print('Webhooks will be installed on your owned public and private repositories.')
 
 
