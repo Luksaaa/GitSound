@@ -245,7 +245,7 @@ def run(config):
         server.server_close()
         stop.set()
         receiver.db.close()
-        raise RuntimeError('cloudflared nije instaliran. Pokreni Install.bat.')
+        raise RuntimeError('cloudflared nije instaliran. Pokreni INSTALL.bat.')
     tunnel = subprocess.Popen([str(tunnel_path), 'tunnel', '--no-autoupdate',
         '--protocol', 'http2', '--url', f'http://127.0.0.1:{server.server_port}'],
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace',
@@ -290,4 +290,4 @@ def run(config):
 
 
 if __name__ == '__main__':
-    raise SystemExit('Pokreni git_sound.py ili start_background.bat.')
+    raise SystemExit('Pokreni git_sound.py ili START_BACKGROUND.bat.')

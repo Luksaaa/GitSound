@@ -47,7 +47,7 @@ def resolve_sound(config, kind):
         return max(candidates, key=lambda p: (p.stat().st_mtime_ns, p.name.casefold()))
     fallback = ROOT / 'sounds' / 'defaults' / (kind + '.wav')
     if not fallback.is_file():
-        raise ValueError('Nema zvuka za ' + kind + '. Pokreni Install.bat ili dodaj ' + kind + '_ime.wav u sounds.')
+        raise ValueError('Nema zvuka za ' + kind + '. Pokreni INSTALL.bat ili dodaj ' + kind + '_ime.wav u sounds.')
     return fallback
 
 

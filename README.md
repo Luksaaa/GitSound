@@ -5,6 +5,18 @@ your GitHub repositories. Public and private repositories are supported.
 
 **Windows 10/11 · Python 3.10+ · Python standard library only · MIT license**
 
+## WHAT TO RUN
+
+**FIRST TIME: DOUBLE-CLICK `INSTALL.bat`, THEN `START_BACKGROUND.bat`.**
+
+**NEXT TIME: DOUBLE-CLICK `START_BACKGROUND.bat`.**
+
+**TO STOP: DOUBLE-CLICK `STOP.bat`.**
+
+`START.bat` is an alternative with a visible console. Choose one start method.
+`TEST_PUSH.bat` and `TEST_STAR.bat` only preview sounds; they do not start monitoring.
+The `.py` and `.ps1` files are used internally; the `.bat` buttons handle launching.
+
 ## Quick start
 
 1. Clone or download this repository.
@@ -12,9 +24,9 @@ your GitHub repositories. Public and private repositories are supported.
    `python` and `git` work in a new terminal.
 3. Authenticate Git for `github.com` with Git Credential Manager, or provide a
    `GITHUB_TOKEN` environment variable. Never put a token in a project file.
-4. Run `Install.bat`. It creates your local configuration, checks your GitHub login,
+4. Run `INSTALL.bat`. It creates your local configuration, checks your GitHub login,
    and downloads Cloudflare's `cloudflared` executable with SHA256 verification.
-5. Run `start_background.bat` for background mode, or `start.bat` for a console window.
+5. Run `START_BACKGROUND.bat` for background mode, or `START.bat` for a console window.
 
 The account is detected from your GitHub login. Git Sound automatically creates
 webhooks for **repositories owned by that account** where you have admin access,
@@ -60,13 +72,13 @@ for this project and are covered by the MIT license.
 
 | File / command | Purpose |
 | --- | --- |
-| `Install.bat` | First-run setup; existing local config is preserved |
-| `start_background.bat` | Start in the background |
-| `start.bat` | Start with visible logs |
-| `test_push.bat` | Play the selected push sound |
-| `test_star.bat` | Play the selected star sound |
+| `INSTALL.bat` | First-run setup; existing local config is preserved |
+| `START_BACKGROUND.bat` | Start in the background |
+| `START.bat` | Start with visible logs |
+| `TEST_PUSH.bat` | Play the selected push sound |
+| `TEST_STAR.bat` | Play the selected star sound |
 | `python git_sound.py --test fork` | Play the selected fork sound |
-| `stop.bat` | Stop the local app and its tunnel |
+| `STOP.bat` | Stop the local app and its tunnel |
 
 `git_sound.log` records events, selected sound names, and errors.
 `webhook_status.json` lists setup successes and failures. These local files may
@@ -105,7 +117,7 @@ transports webhook payloads, including metadata for private repository events.
 
 ## Local configuration and removal
 
-`config.example.json` is the shared template. `Install.bat` copies it to the
+`config.example.json` is the shared template. `INSTALL.bat` copies it to the
 ignored `config.json` on first run. With `"owners": []`, the signed-in user is
 selected automatically. A nonempty owners list must match that user.
 
