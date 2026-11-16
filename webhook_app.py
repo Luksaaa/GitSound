@@ -238,6 +238,7 @@ def run(config):
     threading.Thread(target=worker, daemon=True).start()
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url_queue = queue.Queue()
+    connected = threading.Event()
     tunnel_path = ROOT / 'bin' / 'cloudflared.exe'
     if not tunnel_path.is_file():
         server.shutdown()
@@ -257,22 +258,19 @@ def run(config):
                 match = re.search(r'https://[a-z0-9-]+\.trycloudflare\.com', line)
                 if match:
                     url_queue.put(match.group(0))
+                if 'Registered tunnel connection' in line:
+                    connected.set()
     threading.Thread(target=tunnel_output, daemon=True).start()
     try:
         url = url_queue.get(timeout=90)
         LOG.info('HTTPS tunel: %s', url)
-        # Cekamo da javni tunel stvarno uspostavi vezu prije promjene webhookova.
-        ready = False
-        for _ in range(30):
-            try:
-                with urllib.request.urlopen(url + '/health', timeout=5) as response:
-                    ready = response.status == 200
-                if ready:
-                    break
-            except (OSError, urllib.error.URLError):
-                time.sleep(2)
-        if not ready:
-            raise RuntimeError('HTTPS tunel nije dostupan; pogledaj tunnel.log.')
+        # The edge connection is authoritative. Local DNS/certificate settings can
+        # block a loop through the public hostname even when GitHub can reach it.
+        if not connected.wait(timeout=90):
+            raise RuntimeError('HTTPS tunel nije povezan; pogledaj tunnel.log.')
+        with urllib.request.urlopen(f'http://127.0.0.1:{server.server_port}/health', timeout=5) as response:
+            if response.status != 200:
+                raise RuntimeError('Lokalni webhook prijemnik nije dostupan.')
         while tunnel.poll() is None:
             try:
                 synchronize(api, config, url, secret)
