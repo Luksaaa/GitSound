@@ -1,10 +1,12 @@
 import hashlib
 import hmac
+import io
 import json
 import os
 from pathlib import Path
 import queue
 import tempfile
+import threading
 import unittest
 from unittest.mock import patch
 
@@ -73,6 +75,29 @@ class SoundSelectionTests(unittest.TestCase):
         (self.root / 'config.example.json').write_text(json.dumps({'owners': [], 'sounds': {'push': 'auto', 'star': 'auto'}}))
         (self.root / 'config.json').write_text(json.dumps({'sounds': {'push': 'sounds/custom.wav'}}))
         self.assertEqual(git_sound.load_config()['sounds'], {'push': 'sounds/custom.wav', 'star': 'auto'})
+
+
+class TunnelTests(unittest.TestCase):
+    def inspect(self, text):
+        urls, connected, failed = queue.Queue(), threading.Event(), threading.Event()
+        with tempfile.TemporaryDirectory() as folder:
+            log = Path(folder) / 'tunnel.log'
+            webhook_app.read_tunnel_output(io.StringIO(text), log, urls, connected, failed)
+            self.assertEqual(log.read_text(encoding='utf-8'), text)
+        return urls, connected, failed
+
+    def test_expired_tunnel_signals_failure_even_after_successful_start(self):
+        _, connected, failed = self.inspect('INF Registered tunnel connection\n'
+            'ERR Register tunnel error: Unauthorized: Tunnel not found\n')
+        self.assertTrue(failed.is_set())
+        self.assertFalse(connected.is_set())
+
+    def test_temporary_connection_retry_does_not_discard_tunnel(self):
+        urls, connected, failed = self.inspect('INF https://example-tunnel.trycloudflare.com\n'
+            'ERR Connection terminated: timeout\nINF Registered tunnel connection\n')
+        self.assertFalse(failed.is_set())
+        self.assertTrue(connected.is_set())
+        self.assertEqual(urls.get_nowait(), 'https://example-tunnel.trycloudflare.com')
 
 
 class AccountTests(unittest.TestCase):

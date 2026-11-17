@@ -210,6 +210,23 @@ def synchronize(api, config, url, secret):
     return status
 
 
+def read_tunnel_output(stream, log_path, urls, connected, failed):
+    with log_path.open('w', encoding='utf-8') as log:
+        for line in stream:
+            log.write(line)
+            log.flush()
+            match = re.search(r'https://[a-z0-9-]+\.trycloudflare\.com', line)
+            if match:
+                urls.put(match.group(0))
+            if 'Registered tunnel connection' in line and not failed.is_set():
+                connected.set()
+            if 'tunnel not found' in line.casefold() or 'unauthorized' in line.casefold():
+                if not failed.is_set():
+                    LOG.warning('Cloudflare je ponistio tunel; otvaram novu vezu.')
+                connected.clear()
+                failed.set()
+
+
 def run(config):
     from git_sound import play, load_config
     api = API()
@@ -239,6 +256,7 @@ def run(config):
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url_queue = queue.Queue()
     connected = threading.Event()
+    tunnel_failed = threading.Event()
     tunnel_path = ROOT / 'bin' / 'cloudflared.exe'
     if not tunnel_path.is_file():
         server.shutdown()
@@ -250,36 +268,31 @@ def run(config):
         '--protocol', 'http2', '--url', f'http://127.0.0.1:{server.server_port}'],
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace',
         creationflags=subprocess.CREATE_NO_WINDOW)
-    def tunnel_output():
-        with (ROOT / 'tunnel.log').open('w', encoding='utf-8') as log:
-            for line in tunnel.stdout:
-                log.write(line)
-                log.flush()
-                match = re.search(r'https://[a-z0-9-]+\.trycloudflare\.com', line)
-                if match:
-                    url_queue.put(match.group(0))
-                if 'Registered tunnel connection' in line:
-                    connected.set()
-    threading.Thread(target=tunnel_output, daemon=True).start()
+    threading.Thread(target=read_tunnel_output, args=(tunnel.stdout, ROOT / 'tunnel.log',
+                     url_queue, connected, tunnel_failed), daemon=True).start()
     try:
         url = url_queue.get(timeout=90)
         LOG.info('HTTPS tunel: %s', url)
         # The edge connection is authoritative. Local DNS/certificate settings can
         # block a loop through the public hostname even when GitHub can reach it.
-        if not connected.wait(timeout=90):
+        deadline = time.monotonic() + 90
+        while not connected.wait(timeout=0.5):
+            if tunnel_failed.is_set() or tunnel.poll() is not None or time.monotonic() >= deadline:
+                break
+        if not connected.is_set() or tunnel_failed.is_set():
             raise RuntimeError('HTTPS tunel nije povezan; pogledaj tunnel.log.')
         with urllib.request.urlopen(f'http://127.0.0.1:{server.server_port}/health', timeout=5) as response:
             if response.status != 200:
                 raise RuntimeError('Lokalni webhook prijemnik nije dostupan.')
-        while tunnel.poll() is None:
+        while tunnel.poll() is None and not tunnel_failed.is_set():
             try:
                 synchronize(api, config, url, secret)
             except Exception:
                 LOG.exception('Sinkronizacija webhookova nije uspjela; ponovni pokusaj za 15 minuta.')
             for _ in range(180):
-                if stop.wait(5) or tunnel.poll() is not None:
+                if tunnel_failed.wait(5) or stop.is_set() or tunnel.poll() is not None:
                     break
-        raise RuntimeError('HTTPS tunel je zaustavljen. Ponovno pokreni Git Sound.')
+        raise RuntimeError('HTTPS tunel je prekinut ili ponisten. Automatski slijedi novi pokusaj.')
     finally:
         stop.set()
         tunnel.terminate()
